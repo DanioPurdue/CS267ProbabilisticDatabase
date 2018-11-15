@@ -1,2 +1,2 @@
-# CS267ProbabilisticDatabase
+# CS267A Probabilistic Database Project
 Course Project
