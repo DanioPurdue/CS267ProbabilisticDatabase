@@ -9,6 +9,8 @@ class TableLoader:
     """
         Description: given the name of the table, the table is loaded into a dataframe,
         but it can also be converted the a dictionary of dictionary for one table.
+        dataframe is the main form of of the representations for the liftable inference algorithm.
+        All the tables are represented as a dictionary of dataframes
     """
     def loadTable(self, path):
         # load the table and convert it to the dataframe
@@ -48,7 +50,6 @@ class QueryParser:
     """
         Description: parsed the raw string input
         Query to the designated form for the lifted inference algorithm
-        New Update: a query loader is also added into the program
     """
     def parseString(self, query_str):
         """
@@ -122,6 +123,10 @@ class ProbaDatabase:
         self.queries = []
 
     def loadTablesAndQueries(self):
+        """
+        this function call queryParser and TableLoader, and this function is called
+        in the main()
+        """
 
         # load all the tables into the pandas dataframe
         tableLoader = TableLoader()
