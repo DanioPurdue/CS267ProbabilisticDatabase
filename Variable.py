@@ -13,3 +13,6 @@ class Variable:
         self.name = name
         self.quantifier = "exist"
         self.atom = atom
+
+    def __str__(self):
+        return str(self.quantifier) + " " + str(self.name) + " " + str(self.atom)
