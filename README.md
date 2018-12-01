@@ -11,7 +11,7 @@ Course Project
 ### Notes
 There are two variable classes: `randomVar` and `Variable`.
 `randomVar` is for Gibbs sampling. @Liqi: you may change this part to suit for the gibbs sampling.
-`Variable` is liftable inference algorithm.
+`Variable` is used in liftable inference algorithm. Please do not change it.
 
 
 ## Sample command for running main.py
