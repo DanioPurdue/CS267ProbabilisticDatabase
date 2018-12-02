@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from Variable import Variable
 from Predicate import Predicate
+import GibbsSampling
 
 # Load read the
 class TableLoader:
@@ -175,4 +176,6 @@ if __name__ == "__main__":
             print("one conj")
             for predicate in one_conj:
                 print(predicate)
+
+query_inference = GibbsSampling.run_Gibbs(PD,300) #Optional positional keyword: steps = # of steps
 
