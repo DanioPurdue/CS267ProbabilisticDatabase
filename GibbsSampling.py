@@ -134,10 +134,13 @@ def view_convergence(convergence):
 	else:
 		row = int(math.sqrt(num)) + 1
 		col = row
-	fig, axs = plt.subplots(row, col)
 
-	for ax, query in zip(axs.flatten(), convergence):
-		ax.plot(query)
+	if row == 1:
+		plt.plot(convergence[0])
+	else:
+		fig, axs = plt.subplots(row, col)
+		for ax, query in zip(axs.flat, convergence):
+			ax.plot(query)
 	plt.show()
 
 def run_Gibbs(PD, steps = 300):
