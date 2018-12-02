@@ -15,4 +15,5 @@ class Variable:
         self.atom = atom
 
     def __str__(self):
-        return str(self.quantifier) + " " + str(self.name) + " " + str(self.atom)
+        atom = "(atom)" if self.atom else ""
+        return str(self.quantifier) + " " + str(self.name) + " " + atom

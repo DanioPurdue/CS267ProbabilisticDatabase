@@ -15,4 +15,5 @@ class Predicate:
 
     def __str__(self):
         var_list = [str(one_var) for one_var in self.variables]
-        return str(self.negation) + " " + self.name + str(var_list)
+        negation = "~" if self.negation else ""
+        return str(negation) + " " + self.name + str(var_list)
