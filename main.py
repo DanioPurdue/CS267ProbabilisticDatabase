@@ -129,6 +129,7 @@ class ProbaDatabase:
         self.query_file_path = None
         self.tables_path = []
         self.tables_df = dict() #tables in dataframe Form
+        self.tables_dicts = dict()
         self.queries = []
 
     def loadTablesAndQueries(self):
@@ -142,6 +143,8 @@ class ProbaDatabase:
         for table_path in self.tables_path:
             df = tableLoader.loadTable(table_path)
             self.tables_df[df.name] = df
+            table_name, one_dict = tableLoader.dataFrameToDictTable(df)
+            self.tables_dicts[table_name] = one_dict
 
         # load all the queries
         queryParser = QueryParser()
