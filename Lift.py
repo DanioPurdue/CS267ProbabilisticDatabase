@@ -1,3 +1,5 @@
+import copy
+
 class Lift:
     def __init__(self, database):
 #         self.query = query
@@ -33,8 +35,6 @@ class Lift:
         if tableName not in self.database:
             return -400
         table = self.database[tableName]
-        if len(variables)==1:
-            variables = variables[0]
         if variables not in table:
             return 0    ##return 0
         else:

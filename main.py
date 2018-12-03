@@ -37,6 +37,16 @@ class TableLoader:
             table[tuple(names)] = one_row[-1]
         return [table_name, table]
 
+    def dataFrameToStringDictTable(self, df):
+        # convert the pandas dataframe into a a list [table name, dict()]
+        table = dict()
+        table_name = df.name
+        # this function is for gibbs sampler
+        for one_row in df.itertuples():
+            names = [str(one_row[idx]) for idx in range(1, len(one_row) - 1)]
+            table[tuple(names)] = one_row[-1]
+        return [table_name, table]
+    
     def getAllVariables(self, df):
         # this function is for gibbs sampler
         table_name = df.name
@@ -143,7 +153,7 @@ class ProbaDatabase:
         for table_path in self.tables_path:
             df = tableLoader.loadTable(table_path)
             self.tables_df[df.name] = df
-            table_name, one_dict = tableLoader.dataFrameToDictTable(df)
+            table_name, one_dict = tableLoader.dataFrameToStringDictTable(df)
             self.tables_dicts[table_name] = one_dict
 
         # load all the queries
@@ -191,14 +201,15 @@ if __name__ == "__main__":
                 print(predicate)
     
     """
-    DB = PD.createDictDB(PD.tables_df)
+    DB = PD.tables_dicts
     print(DB)
+    print(DB["Q"][("1",)])
     Lift = Lift(DB)
-    print(Lift.database)
     
     
     for q in PD.queries:
         Lift.printQuery(q)
+        print("p = ", Lift.infer(q))
     
 #query_inference = GibbsSampling.run_Gibbs(PD,300) #Optional positional keyword: steps = # of steps
 
