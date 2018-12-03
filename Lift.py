@@ -3,7 +3,7 @@ class Lift:
 #         self.query = query
         self.database = database
         # predicate[][] query, [CNF1, CNF2,...]
-        # dict{name: dict{(): int} } database
+        # dict{name: dataframe} database
     
     def convertCNF(self, query):
         """
@@ -22,13 +22,13 @@ class Lift:
             print("")
         print("=====================================")
     
-    def findInTable(self,tableName,variables): # str tableName; str_tuple variables
+    def findInTable(self,table,variables): # str tableName; str_tuple variables
         """
         Find the probability of a variable tuple in a table, -1 if not found
  
         Parameters
         --------------------
-            tablename         --  String, Name of the table
+            table             --  DataFrame, the table of the predicate
             variables         --  Tuple of name of ground variables(atom), (e.g. ("1","2"))
  
         Returns
@@ -37,17 +37,17 @@ class Lift:
                         -1 if not found in table,
                         -400 if table does not exist
         """
-        
-        if tableName not in self.database:
-            return -400
-        table = self.database[tableName]
-        if len(variables)==1:
-            variables = variables[0]
-        if variables not in table:
-            return 0    ##return 0
-        else:
-            return table[variables]
-        
+        q_str = []
+        for i in range(len(variables)):
+            s = "var"+str(i+1)+" == "+variables[i]
+            q_str.append(s)
+        q_str = (" & ").join(q_str)
+        print("query string: ", q_str)
+        t = table.query(q_str)
+        print("after query: ")
+        print(t["1"])
+        return t["1"].Pr
+
     def isIndependent(self,q1,q2):
         """
         Parameters
@@ -152,7 +152,7 @@ class Lift:
             return 1 - result                  
             
                     
-    def Step0(self, query):
+    def step0(self, query):
         """
         Step 0 of Lifted Inference Algorithm 
  
@@ -169,10 +169,11 @@ class Lift:
             return -400
         if len(query) == 1 and len(query[0]) == 1:
             predicate = query[0][0]
+            table = self.database[predicate.name]
             if all([var.atom for var in predicate.variables]):
                 parameter = tuple([var.name for var in predicate.variables])
                 # tuple of variables in predicate
-                p = self.findInTable(predicate.name,parameter)
+                p = self.findInTable(table, parameter)
                 return p
         return -1
     
@@ -218,7 +219,7 @@ class Lift:
 #         else:
 #             return flag_0
         
-        p = self.Step0(query)
+        p = self.step0(query)
         print (query)
         if p != -1:
             print ('step 0: ', p)

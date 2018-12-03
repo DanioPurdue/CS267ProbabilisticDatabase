@@ -185,9 +185,19 @@ if __name__ == "__main__":
     
     """
     Lift = Lift(PD.tables_df)
+    
+    
     for q in PD.queries:
         Lift.convertCNF(q)
+        for clause in q:
+            for pred in clause:
+                for idx, var in enumerate(pred.variables):
+                    var.name = str(idx+1)
+                    var.atom = True
+        p = Lift.step0(q)
+        print("step 0: ")
+        print(p)
         Lift.printQuery(q)
     
-query_inference = GibbsSampling.run_Gibbs(PD,300) #Optional positional keyword: steps = # of steps
+#query_inference = GibbsSampling.run_Gibbs(PD,300) #Optional positional keyword: steps = # of steps
 
