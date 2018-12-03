@@ -47,7 +47,14 @@ class TableLoader:
             rand_vars_list.append(randomVar(df.name, names, prob))
         return rand_vars_list
 
-
+#     def createDictDB(self, dfDict):
+#         DB = dict()
+#         for key in dfDict:
+#             rst = self.dataFrameToDictTable(dfDict[key])
+#             tname, table = rst[0], rst[1]
+#             DB[tname] = table
+#         return DB
+    
 class QueryParser:
     """
         Description: parsed the raw string input
@@ -181,19 +188,13 @@ if __name__ == "__main__":
                 print(predicate)
     
     """
-    Lift = Lift(PD.tables_df)
+    DB = PD.createDictDB(PD.tables_df)
+    print(DB)
+    Lift = Lift(DB)
+    print(Lift.database)
     
     
     for q in PD.queries:
-        Lift.convertCNF(q)
-        for clause in q:
-            for pred in clause:
-                for idx, var in enumerate(pred.variables):
-                    var.name = str(idx+1)
-                    var.atom = True
-        p = Lift.step0(q)
-        print("step 0: ")
-        print(p)
         Lift.printQuery(q)
     
 #query_inference = GibbsSampling.run_Gibbs(PD,300) #Optional positional keyword: steps = # of steps
