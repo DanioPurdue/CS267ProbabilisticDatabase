@@ -1,8 +1,9 @@
 import copy
+from itertools import combinations
 
 class Lift:
     def __init__(self, database):
-#         self.query = query
+        self.cache = []
         self.database = database
         # predicate[][] query, [CNF1, CNF2,...]
         # dict{name: dataframe} database
@@ -130,6 +131,23 @@ class Lift:
 #         c = self.infer([query[0][:2], query[0][2:]])
 #         return a + b - c
     
+    def equalQ(self,q1,q2):
+        if len(q1) != len(q2):
+            return False
+        for c1,c2 in zip(q1,q2):
+            if len(c1) != len(c2):
+                return False
+            for p1,p2 in zip(c1,c2):
+                if p1.name != p2.name or len(p1.variables) != len(p2.variables):
+                    return False
+                for v1,v2 in zip(p1.variables,p2.variables):
+                    if v1.name != v2.name:
+                        return False
+        return True
+    
+    def existInCache(self,q):
+        return any([self.equalQ(q,q2) for q2 in self.cache])
+    
     def sep_cq(self,query):
         query_union = []
         predicate1 = query[0][0]
@@ -178,17 +196,35 @@ class Lift:
           
         
     def queryUnion(self, querys):
+        """
+        Step 2 of the Lifted Inference Algorithm
+        
+        Parameters
+        --------------------
+            querys         --  an array of single clause querys
+ 
+        Returns
+        --------------------
+            rtn            --  the query which is the union of all input clauses
+        """
         rtn = []
         for q in querys:
-            rtn.append(q[0])
+            clause = q[0]
+            rtn.append(clause)
         return rtn
     
     def Step3(self, query):
+        # Only operates on CQ
         if len(query) > 1:
             return -1
         
-        if len(query) == 1 and len(query[0]) <= 2:
+        if self.existInCache(query):
             return -1
+        
+        self.cache.append(query)
+        
+#         if len(query) == 1 and len(query[0]) <= 2:
+#             return -1
         
 #         if len(query) == 1:
 #             querys = self.sep_cq(query)
@@ -196,15 +232,19 @@ class Lift:
 #             querys = self.sep_dq(query)
         
         querys = self.sep_cq(query)
+        m = len(querys)
         if len(querys) == 1:
             return self.infer(querys[0])
-        self.printQuery(querys[0])
-        a = self.infer(querys[0])
-        self.printQuery(querys[1])
-        b = self.infer(querys[1])
-        self.printQuery(self.queryUnion(querys))
-        c = self.infer(self.queryUnion(querys))
-        return a + b - c
+        
+        rst = 0
+        nums = [x for x in range(m)]
+        for i in range(m):
+            for comb in combinations(nums,i+1):
+                print(comb)
+                q = [querys[j][0] for j in comb]
+                print(self.infer(q))
+                rst += (-1)**(len(comb)+1) * self.infer(q)
+        return rst
     
     def Step4(self, query):
         """
@@ -352,4 +392,5 @@ class Lift:
         if p != -1:
             print ('step 5: ', p)
             return p
+        print("Not liftable")
         return -999

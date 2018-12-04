@@ -1,5 +1,5 @@
 P(x)
 R(x1, y1), Q(x1)
-P(x),R(n,m),Q(z)
+P(x),R(x,y),Q(y)
 R(x1, y1), P(x1), Q(x2), R(x2, y2)
-R(x1, y1), P(x1), Q(x2), T(x2, y2)
+R(x1, y1), P(x1) || Q(x2), T(x2, y2)
