@@ -9,6 +9,7 @@ class Lift:
     
         
     def printQuery(self, query):
+        print("=====================================")
         for clause in query:
             for pred in clause:
                 print(pred)
@@ -120,13 +121,89 @@ class Lift:
                 return self.infer(q1) * self.infer(q2)
         return -1
     
-    def Step3(self,query):
-        if len(query) <= 1:
+#     def Step3(self,query):
+#         if len(query) <= 1:
+#             return -1
+        
+#         a = self.infer([query[0][:2]])
+#         b = self.infer([query[0][2:]])
+#         c = self.infer([query[0][:2], query[0][2:]])
+#         return a + b - c
+    
+    def sep_cq(self,query):
+        query_union = []
+        predicate1 = query[0][0]
+        var_names = [variable.name for variable in predicate1.variables]
+        query_union.append([var_names,[predicate1]])
+        for id_p,predicate in enumerate(query[0][1:]):
+            var_names = [variable.name for variable in predicate.variables]
+            length = len(query_union)
+            for id_u in range(length):
+                union = query_union[id_u]
+                key = union[0]
+                if len(set(var_names) & set(key)) == 0:
+                    if id_u!=length-1:
+                        continue
+                    else:
+                        query_union.append([var_names, [predicate]]) 
+                else:
+                    new_key = var_names if len(var_names)>len(key) else key
+                    query_union[id_u][1].append(predicate)
+                    query_union[id_u][0] = new_key
+        querys = [[union[1]] for union in query_union]
+        return querys 
+        
+    def sep_dq(self,query):
+        query_union = []
+        predicate1 = query[0]
+        var_names = [variable.name for variable in predicate1[0].variables]
+        query_union.append([var_names,[predicate1]])
+        for id_p,predicate in enumerate(query[1:]):
+            var_names = [variable.name for variable in predicate[0].variables]
+            length = len(query_union)
+            for id_u in range(length):
+                union = query_union[id_u]
+                key = union[0]
+                if len(set(var_names) & set(key)) == 0:
+                    if id_u!=length-1:
+                        continue
+                    else:
+                        query_union.append([var_names, [predicate]]) 
+                else:
+                    new_key = var_names if len(var_names)>len(key) else key
+                    query_union[id_u][1].append(predicate)
+                    query_union[id_u][0] = new_key
+        querys = [union[1] for union in query_union] 
+        return querys 
+          
+        
+    def queryUnion(self, querys):
+        rtn = []
+        for q in querys:
+            rtn.append(q[0])
+        return rtn
+    
+    def Step3(self, query):
+        if len(query) > 1:
             return -1
         
-        a = self.infer([query[0][:2]])
-         b = self.infer([query[0][2:]])
-        c = self.infer([query[0][:2], query[0][2:]])
+        if len(query) == 1 and len(query[0]) <= 2:
+            return -1
+        
+#         if len(query) == 1:
+#             querys = self.sep_cq(query)
+#         else:
+#             querys = self.sep_dq(query)
+        
+        querys = self.sep_cq(query)
+        if len(querys) == 1:
+            return self.infer(querys[0])
+        self.printQuery(querys[0])
+        a = self.infer(querys[0])
+        self.printQuery(querys[1])
+        b = self.infer(querys[1])
+        self.printQuery(self.queryUnion(querys))
+        c = self.infer(self.queryUnion(querys))
         return a + b - c
     
     def Step4(self, query):
@@ -144,12 +221,20 @@ class Lift:
         """
         if not query:
             return -1
-        m = len(query[0])
+        m = len(query)
+        if m < 2:
+            return -1
         for i in range(1,m):
-            q1 = query[:m]
-            q2 = query[m:]
+            q1 = query[:i]
+            q2 = query[i:]
+            print("decomposable disjunctive")
+#             self.printQuery(q1)
+#             self.printQuery(q2)
             if self.isIndependent(q1,q2):
-                return 1 - (1-self.infer(q1)) * (1-self.infer(q2))
+                print("decompose s4")
+                rst = 1 - (1-self.infer(q1)) * (1-self.infer(q2))
+                print(rst)
+                return rst
         return -1
     
     
@@ -175,6 +260,7 @@ class Lift:
            
     def convert_to_uni(self, query, separator):
         if len(query) != 1:
+            self.printQuery(query)
             print("not conjunction query")
             return -1
         predicates = [predicate for predicate in query[0]] 
@@ -255,6 +341,11 @@ class Lift:
         p = self.Step3(query)
         if p != -1:
             print ('step 3: ', p)
+            return p
+        
+        p = self.Step4(query)
+        if p != -1:
+            print ('step 4: ', p)
             return p
         
         p = self.Step5(query)
