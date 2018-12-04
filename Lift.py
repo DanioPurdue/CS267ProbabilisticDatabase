@@ -120,6 +120,15 @@ class Lift:
                 return self.infer(q1) * self.infer(q2)
         return -1
     
+    def Step3(self,query):
+        if len(query) <= 1:
+            return -1
+        
+        a = self.infer([query[0][:2]])
+        b = self.infer([query[0][2:]])
+        c = self.infer([query[0][:2], query[0][2:]])
+        return a + b - c
+    
     def Step4(self, query):
         """
         Step 4 of the Lifted Inference Algorithm
@@ -134,7 +143,7 @@ class Lift:
                     -- -1 if fails
         """
         if not query:
-            return -400
+            return -1
         m = len(query[0])
         for i in range(1,m):
             q1 = query[:m]
@@ -237,10 +246,17 @@ class Lift:
         if p != -1:
             print ('step 0: ', p)
             return p
+        
         p = self.Step2(query)
         if p != -1:
             print ('step 2: ', p)
             return p
+        
+        p = self.Step3(query)
+        if p != -1:
+            print ('step 3: ', p)
+            return p
+        
         p = self.Step5(query)
         if p != -1:
             print ('step 5: ', p)
