@@ -125,7 +125,7 @@ class Lift:
             return -1
         
         a = self.infer([query[0][:2]])
-        b = self.infer([query[0][2:]])
+         b = self.infer([query[0][2:]])
         c = self.infer([query[0][:2], query[0][2:]])
         return a + b - c
     
