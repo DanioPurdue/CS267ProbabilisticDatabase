@@ -208,6 +208,7 @@ if __name__ == "__main__":
     
     
     for q in PD.queries:
+        print("Solving Query: ")
         Lift.printQuery(q)
         print("p = ", Lift.infer(q))
     
