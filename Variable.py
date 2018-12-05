@@ -11,9 +11,9 @@ class Variable:
         """
         
         self.name = name
-        self.quantifier = "exist"
+#         self.quantifier = "exist"
         self.atom = atom
 
     def __str__(self):
         atom = "(atom)" if self.atom else ""
-        return str(self.quantifier) + " " + str(self.name) + " " + atom
+        return str(self.name) + " " + atom

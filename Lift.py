@@ -1,13 +1,14 @@
 import copy
 from itertools import combinations
+from Variable import Variable
+from Predicate import Predicate
+
 
 class Lift:
     def __init__(self, database):
         self.cache = []
         self.database = database
-        # predicate[][] query, [CNF1, CNF2,...]
-        # dict{name: dataframe} database
-    
+
         
     def printQuery(self, query):
         print("=====================================")
@@ -18,7 +19,7 @@ class Lift:
         print("=====================================")
     
     
-    def findInTable(self,tableName,variables): # str tableName; str_tuple variables
+    def findInTable(self,tableName,variables):
         """
         Find the probability of a variable tuple in a table, -1 if not found
  
@@ -99,6 +100,99 @@ class Lift:
         rs_2 = self.getRelationalSymbols(q2)
         return len(rs_1 & rs_2) == 0
     
+    def find_common_predicate(self, query):
+        if len(query) == 1:
+            return -1
+        sets = []
+        for cq in query:
+            sets.append(set([predicate.name for predicate in cq]))
+        and_sets = sets[0]
+        for set_ in sets[1:]:
+            and_sets = and_sets & set_
+        if not len(and_sets) == 0:
+            return list(and_sets)[0]
+        return -1  
+    
+    def change_variables(self, query, common_predicate_name):
+        new_query = copy.deepcopy(query)
+        variables_names = [chr(i) for i in range(97, 123)]
+        for id_c, cq in enumerate(query):
+            for predicate in cq:
+                if predicate.name == common_predicate_name:
+                    standard_names = [variable.name for variable in predicate.variables]
+            for id_p, predicate in enumerate(cq):
+                if not predicate.name == common_predicate_name:
+                    for id_v, variable in enumerate(predicate.variables):
+                        if variable.name in standard_names:
+                            index = standard_names.index(variable.name)
+                            if index > 25:
+                                print("wrong index")
+                            else:
+                                new_query[id_c][id_p].variables[id_v].name = variables_names[index]
+        variables = []
+        for i in range(len(standard_names)):
+            variables.append(Variable(variables_names[i]))
+        s1 = Predicate(common_predicate_name,variables)
+        query1 = [[s1]]
+        query2 = []
+        for id_c, cq in enumerate(new_query):
+            query2.append([])
+            for predicate in cq:
+                if not predicate.name == common_predicate_name:
+                    query2[id_c].append(predicate)
+        return query1, query2
+    
+    def convert_to_and_form(self, querys, separator):
+        sepa_values = []
+        for query in querys:
+            for cq in query:
+                for predicate in cq:
+                    for id_v, variable in enumerate(predicate.variables):
+                        if variable.name == separator:
+                            table = self.database[predicate.name]
+                            tuples = table.keys()
+                            for tuple_ in tuples:
+                                if not tuple_[id_v] in sepa_values:
+                                    sepa_values.append(tuple_[id_v])  
+        result = 1
+        for value in sepa_values:
+            infer_result = 1
+            for query in querys:
+                temp_query = []
+                for id_c, cq in enumerate(query):
+                    temp_query.append([])
+                    for id_p, predicate in enumerate(cq):
+                        temp_query[id_c].append(copy.deepcopy(predicate))
+                        for id_v, variable in enumerate(predicate.variables):
+                            if variable.name == separator:
+                                temp_query[id_c][id_p].variables[id_v].name = value
+                                temp_query[id_c][id_p].variables[id_v].atom = True
+                infer_result = infer_result * self.infer(temp_query)
+            result = result*(1-infer_result)
+        return 1-result
+    
+    def Step1(self, query):
+        common_predicate_name = self.find_common_predicate(query)
+        if not common_predicate_name == -1:
+            query1,  query2 = self.change_variables(query, common_predicate_name)
+            if self.isIndependent(query1, query2):
+                return self.infer(query1)*self.infer(query2)
+            else:
+                temp_query = [[]]
+                for query in [query1, query2]:
+                    for cq in query:
+                        for predicate in cq:
+                            temp_query[0].append(copy.deepcopy(predicate))
+                separator = self.find_separator(temp_query)
+                if separator != -1:
+                    result = self.convert_to_and_form([query1, query2], separator)
+                    return result
+                else:
+                    return -1 
+        else:
+            return -1
+        
+    
     def Step2(self,query):
         """
         Step 2 of the Lifted Inference Algorithm
@@ -122,14 +216,6 @@ class Lift:
                 return self.infer(q1) * self.infer(q2)
         return -1
     
-#     def Step3(self,query):
-#         if len(query) <= 1:
-#             return -1
-        
-#         a = self.infer([query[0][:2]])
-#         b = self.infer([query[0][2:]])
-#         c = self.infer([query[0][:2], query[0][2:]])
-#         return a + b - c
     
     def equalQ(self,q1,q2):
         if len(q1) != len(q2):
@@ -221,20 +307,11 @@ class Lift:
         if self.existInCache(query):
             return -1
         
-        self.cache.append(query)
-        
-#         if len(query) == 1 and len(query[0]) <= 2:
-#             return -1
-        
-#         if len(query) == 1:
-#             querys = self.sep_cq(query)
-#         else:
-#             querys = self.sep_dq(query)
-        
+        self.cache.append(query)     
         querys = self.sep_cq(query)
         m = len(querys)
         if len(querys) == 1:
-            return self.infer(querys[0])
+            return -1
         
         rst = 0
         nums = [x for x in range(m)]
@@ -267,13 +344,8 @@ class Lift:
         for i in range(1,m):
             q1 = query[:i]
             q2 = query[i:]
-            print("decomposable disjunctive")
-#             self.printQuery(q1)
-#             self.printQuery(q2)
             if self.isIndependent(q1,q2):
-                print("decompose s4")
                 rst = 1 - (1-self.infer(q1)) * (1-self.infer(q2))
-                print(rst)
                 return rst
         return -1
     
@@ -282,7 +354,7 @@ class Lift:
     def find_separator(self,query):
         variables_at = dict()
         if len(query) != 1:
-            print("not conjunction query")
+            print("not conjunction query in Step5")
             return -1
         predicates = [predicate for predicate in query[0]]
         for predicate in predicates:
@@ -319,19 +391,17 @@ class Lift:
                 if (not variable in variables) and (variable.atom == False):
                     variables.append(variable)               
         
-        if all([variable.quantifier == "exist" for variable in variables]):
-            result = 1
-            for sepa_value in sepa_values:
-                temp_query = [[]]
-                for id_p, predicate in enumerate(predicates):
-                    temp_query[0].append(copy.deepcopy(predicate))
-                    for id_v, variable in enumerate(predicate.variables):
-                        if variable.name == separator:
-                                temp_query[0][id_p].variables[id_v].name = sepa_value
-                                temp_query[0][id_p].variables[id_v].atom = True
-                                temp_query[0][id_p].variables[id_v].quantifier = "universal"
-                result = result * (1 - self.infer(temp_query))
-            return 1 - result                  
+        result = 1
+        for sepa_value in sepa_values:
+            temp_query = [[]]
+            for id_p, predicate in enumerate(predicates):
+                temp_query[0].append(copy.deepcopy(predicate))
+                for id_v, variable in enumerate(predicate.variables):
+                    if variable.name == separator:
+                            temp_query[0][id_p].variables[id_v].name = sepa_value
+                            temp_query[0][id_p].variables[id_v].atom = True
+            result = result * (1 - self.infer(temp_query))
+        return 1 - result                  
             
 
 
@@ -347,30 +417,14 @@ class Lift:
             return -1
             
     def infer(self, query):
-#         flag_0 = self.Step0(query)
-#         if flag_0 == -400:
-#             print("not query")
-#         elif flag_0 == -1:
-#             flag_4 = self.Step4(query)
-#             if flag_4 == -400:
-#                 print("not query")
-#             elif flag_4 == -1:
-#                 flag_5 = self.Step5(query)
-#                 if flag_5 == -400:
-#                     print("not query")
-#                 elif flag_5 == -1:
-#                     print("fail")
-#                     return -1
-#                 else:
-#                     return flag_5
-#             else:
-#                 return flag_4
-#         else:
-#             return flag_0
-        
         p = self.Step0(query)
         if p != -1:
             print ('step 0: ', p)
+            return p
+        
+        p = self.Step1(query)
+        if p != -1:
+            print ('step 1: ', p)
             return p
         
         p = self.Step2(query)
