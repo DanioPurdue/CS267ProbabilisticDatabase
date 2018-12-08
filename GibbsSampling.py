@@ -6,6 +6,8 @@ import pdb
 import matplotlib.pyplot as plt
 import progressbar
 import math
+import time
+from joblib import Parallel, delayed
 
 class GibbsSampler:
 	def __init__(self, data_frame, parsedquery, table_matching, steps):
@@ -34,96 +36,100 @@ class GibbsSampler:
 	def sampling(self,prob):
 			return np.random.binomial(1, prob)
 
-	def var_state(self, var, query, conj_index):
-		#Descritpion: Retrive state of a variable from tuples with status 1 
-		#Return: A set of states
-		state = set()
-		table_list = []
-		for key in query.keys():
-			if var in query[key]:
-				matched_table = self.table_matching[conj_index][key]
-				table_list.append((matched_table,query[key].index(var)))
-		for table,var_index in table_list:
-			state_list = self.data.tables_df[table].values[:,var_index].astype(int).tolist()
-			for _ in range(len(state_list)):
-				if self.world[table][_] == 1:
-					state.add(state_list[_])
-		return state
-
-	def check_single_state(self, single_state, query, conj_index):
-		#Description: Check World SAT of a single_state 
-		#Return: True or False
-		predicate_sat = [0 for _ in range(len(query.keys()))]
-		for table in query.keys():
-			temp = [single_state[var] for var in query[table]]
-			matched_table = self.table_matching[conj_index][table]
-			num_tuples = self.data.tables_df[matched_table].values.shape[0]
-			for index in range(num_tuples):
-				if self.world[matched_table][index] == 1:
-					if (list(self.data.tables_df[matched_table].values[index][0:-1])==temp):
-						predicate_sat[list(query.keys()).index(table)] = 1
-						break
-				else:
-					continue
-		return all(predicate_sat)
-
-
 	def check_world(self, query, conj_index):
 		#Description: Check World SAT for each conj in one world
 		#Return: True or False
-		
-		flag = [] 
+		# for key in self.table_matching[conj_index].keys():
+		# 	value = self.table_matching[conj_index][key]
+		# 	if value != key:
+		# 		self.data.tables_df[key] = self.data.tables_df[value].copy()
+		# 		self.world[key] = self.world[value].copy()
+
 		for key in query.keys():
-			matched_table = self.table_matching[conj_index][key]
-			if any(self.world[matched_table]) == False: # If any table has all 0 prob, return False
-				return False
-			if all(self.world[matched_table]) == True:
-				flag.append(True)
-		if all(flag) & len(flag)!=0: #If all tables has 1 prob, return True
-			return True
+			tmp = dict(zip(list(self.data.tables_df[key].columns.values),query[key]))
+			self.data.tables_df[key] = self.data.tables_df[key].rename(index=str, columns=tmp)
+
+		joint = []
+		#matched_table = self.table_matching[conj_index][list(query)[0]]
+		active_list= (np.where(self.world[list(query)[0]]==1)[0])
+		joint.append(self.data.tables_df[list(query)[0]].iloc[active_list,:-1])
 		
-		var_state = {} 
-		var_names=set(var for _ in query.values() for var in _) #Get variable names of the query/conj
-		for var in var_names:
-			var_state[var] = self.var_state(var, query, conj_index) #Retrieve state of each variable from tuples with status 1
-
-		all_combi = list(itertools.product(*var_state.values())) #Retrieve all possible variable state combinations 
-		for each in all_combi:
-			sat = self.check_single_state(dict(zip(var_names, each)), query, conj_index) #Check SAT of each possible state
-			if sat == True:
-				return True
-		return False
-
+		for key in query.keys():
+			tmp = []
+			#matched_table = self.table_matching[conj_index][key]
+			active_list= (np.where(self.world[key]==1)[0])
+			tmp.append(self.data.tables_df[key].iloc[active_list,:-1])
+			intersect = []
+			non_intersect = []
+			# print("joint", joint)
+			for i in range(len(joint)):
+				get_intersect = set(query[key]).intersection(joint[i].columns.values)
+				if bool(get_intersect):
+					intersect.append((get_intersect, i))
+				else:
+					non_intersect.append(i)
+			if len(intersect)!=0:
+				for inter_col, index in intersect:
+					tmp[0] = pd.merge(joint[index],tmp[0],on = list(inter_col),how = 'inner')
+					
+			if len(non_intersect)!=0:
+				#pdb.set_trace()
+				for j in non_intersect:
+					tmp.append(joint[j])
+			joint = tmp
+		# print("last",joint)
+		# print("world",self.world)
+		for i in joint:
+			if i.empty:
+				return False
+		
+		return True	
 
 	def Gibbs(self):
 		#Description: Gibbs sampling
 		#Return: Approximate inference for one query
-		update_count = 0 #Sampling update count. 1 update_count: a single tuple sampling
-		iter_count = 0 #Iteration count. 1 iter_count: sampling for all tuples 
+		#update_count = 0 #Sampling update count. 1 update_count: a single tuple sampling
+		iter_count = 1 #Iteration count. 1 iter_count: sampling for all tuples 
 		sat_num = 0 # Satisfied world count. Checked for each update_count
 		convergence = []
 		bar = progressbar.ProgressBar(maxval=1, widgets=[progressbar.Bar('=', '[', ']'), ' ',progressbar.Percentage()])
 		bar.start()
+		start_time = time.time()
+		query_table = set(table for _ in self.table_matching for table in _.values())
+		
 		while iter_count < self.iter_max:
-			query_table = set(table for _ in self.table_matching for table in _.values())
 			for table in query_table: 
 				num_tuples = self.data.tables_df[table].shape[0]
+
+				#Following two lines -- Non-parallel
 				for index in range(num_tuples):
-					self.world[table][index] = self.sampling(self.data.tables_df[table].values[index,-1])
-					conj_index = 0 #Index of each conj in one UCQ
-					for one_conj in self.parsedquery: #Check world SAT for each conj
-						if self.check_world(one_conj, conj_index):
-							sat_num = sat_num + 1
-							break
-						conj_index = conj_index + 1
-					update_count = update_count + 1
-					convergence.append(sat_num/update_count)
+					self.world[table][index] = self.sampling(self.data.tables_df[table].iloc[index,-1])
+				#Following two lines -- parallel
+				# para_ = Parallel(n_jobs = 2)(delayed(self.sampling)(self.data.tables_df[table].iloc[index,-1]) for index in range(num_tuples))
+				# self.world[table] = np.array(para_)
+
+			conj_index = 0 #Index of each conj in one UCQ
+
+			for one_conj in self.parsedquery: #Check world SAT for each conj
+
+				for key in self.table_matching[conj_index].keys():
+					value = self.table_matching[conj_index][key]
+					if value != key:
+						self.data.tables_df[key] = self.data.tables_df[value].copy()
+						self.world[key] = self.world[value].copy()
+
+				if self.check_world(one_conj, conj_index):
+					sat_num = sat_num + 1
+					break
+				conj_index = conj_index + 1
+			
+			convergence.append(sat_num/iter_count)
 			iter_count = iter_count + 1
 			bar.update(iter_count/self.iter_max)
 		bar.finish()
-		
-		return sat_num / update_count, convergence
-
+		end_time = time.time()
+		print(end_time - start_time) #Comment out to see the running time
+		return sat_num / iter_count, convergence
 
 def view_convergence(convergence):
 	#Description: Plot convergence rate
@@ -179,7 +185,9 @@ def run_Gibbs(PD, steps = 300):
 		convergence.append(prob_stream)
 		print("Gibbs sampling approximation -- #%d query: " % query_index, prob)
 	print('Done')
+	
 	view_convergence(convergence)
+	
 
 	
 
