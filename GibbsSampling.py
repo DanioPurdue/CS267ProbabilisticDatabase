@@ -149,7 +149,7 @@ def view_convergence(convergence):
 			ax.plot(query)
 	plt.show()
 
-def run_Gibbs(PD, steps = 300):
+def run_Gibbs(PD, steps = 100):
 	#Description: Gibbs-Sampling pre-processing for queries
 	#Output: Prob of each UCQ
 	print("Start Gibbs-Sampling approximation")

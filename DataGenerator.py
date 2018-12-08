@@ -48,6 +48,6 @@ class DataGenerator:
 
 
 if __name__ == "__main__":
-    n = 200 #<--------change this n value
+    n = 500 #<--------change this n value
     print("Generate data points of size: " + str(n))
     DataGenerator(n)
