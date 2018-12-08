@@ -5,6 +5,8 @@ from Variable import Variable
 from Predicate import Predicate
 import GibbsSampling
 from Lift import Lift 
+from datetime import datetime
+
 
 # Load read the
 class TableLoader:
@@ -202,15 +204,17 @@ if __name__ == "__main__":
     
     """
     DB = PD.tables_dicts
-    print(DB)
-    print(DB["Q"][("1",)])
-    Lift = Lift(DB)
+#     print(DB)
+#     Lift = Lift(DB)
     
     
     for q in PD.queries:
+        lift = Lift(DB)
+        start=datetime.now()
         print("Solving Query: ")
-        Lift.printQuery(q)
-        print("p = ", Lift.infer(q))
+        lift.printQuery(q)
+        print("p = ", lift.infer(q))
+        print("Execution time: ",datetime.now() - start)
     
 #query_inference = GibbsSampling.run_Gibbs(PD,300) #Optional positional keyword: steps = # of steps
 
