@@ -50,18 +50,15 @@ class GibbsSampler:
 			self.data.tables_df[key] = self.data.tables_df[key].rename(index=str, columns=tmp)
 
 		joint = []
-		#matched_table = self.table_matching[conj_index][list(query)[0]]
 		active_list= (np.where(self.world[list(query)[0]]==1)[0])
 		joint.append(self.data.tables_df[list(query)[0]].iloc[active_list,:-1])
 		
 		for key in query.keys():
 			tmp = []
-			#matched_table = self.table_matching[conj_index][key]
 			active_list= (np.where(self.world[key]==1)[0])
 			tmp.append(self.data.tables_df[key].iloc[active_list,:-1])
 			intersect = []
 			non_intersect = []
-			# print("joint", joint)
 			for i in range(len(joint)):
 				get_intersect = set(query[key]).intersection(joint[i].columns.values)
 				if bool(get_intersect):
@@ -73,12 +70,10 @@ class GibbsSampler:
 					tmp[0] = pd.merge(joint[index],tmp[0],on = list(inter_col),how = 'inner')
 					
 			if len(non_intersect)!=0:
-				#pdb.set_trace()
 				for j in non_intersect:
 					tmp.append(joint[j])
 			joint = tmp
-		# print("last",joint)
-		# print("world",self.world)
+		
 		for i in joint:
 			if i.empty:
 				return False
@@ -88,7 +83,7 @@ class GibbsSampler:
 	def Gibbs(self):
 		#Description: Gibbs sampling
 		#Return: Approximate inference for one query
-		#update_count = 0 #Sampling update count. 1 update_count: a single tuple sampling
+
 		iter_count = 1 #Iteration count. 1 iter_count: sampling for all tuples 
 		sat_num = 0 # Satisfied world count. Checked for each update_count
 		convergence = []
@@ -128,7 +123,7 @@ class GibbsSampler:
 			bar.update(iter_count/self.iter_max)
 		bar.finish()
 		end_time = time.time()
-		print(end_time - start_time) #Comment out to see the running time
+		#print(end_time - start_time) #Comment out to see the running time
 		return sat_num / iter_count, convergence
 
 def view_convergence(convergence):
