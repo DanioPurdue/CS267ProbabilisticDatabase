@@ -203,18 +203,18 @@ if __name__ == "__main__":
                 print(predicate)
     
     """
-    DB = PD.tables_dicts
-#     print(DB)
-#     Lift = Lift(DB)
+#     DB = PD.tables_dicts
+# #     print(DB)
+# #     Lift = Lift(DB)
     
     
-    for q in PD.queries:
-        lift = Lift(DB)
-        start=datetime.now()
-        print("Solving Query: ")
-        lift.printQuery(q)
-        print("p = ", lift.infer(q))
-        print("Execution time: ",datetime.now() - start)
+#     for q in PD.queries:
+#         lift = Lift(DB)
+#         start=datetime.now()
+#         print("Solving Query: ")
+#         lift.printQuery(q)
+#         print("p = ", lift.infer(q))
+#         print("Execution time: ",datetime.now() - start)
     
-#query_inference = GibbsSampling.run_Gibbs(PD,300) #Optional positional keyword: steps = # of steps
+query_inference = GibbsSampling.run_Gibbs(PD,100) #Optional positional keyword: steps = # of steps
 
