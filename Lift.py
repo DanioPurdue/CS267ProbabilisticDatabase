@@ -328,9 +328,9 @@ class Lift:
         nums = [x for x in range(m)]
         for i in range(m):
             for comb in combinations(nums,i+1):
-                print(comb)
+                # print(comb)
                 q = [querys[j][0] for j in comb]
-                print(self.infer(q))
+                # print(self.infer(q))
                 rst += (-1)**(len(comb)+1) * self.infer(q)
         return rst
     

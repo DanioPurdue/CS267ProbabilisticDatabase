@@ -1,44 +1,54 @@
 # CS267A Probabilistic Database Project
-Course Project
-
 ## `main.py`
-### Files needed for running the commands
+`main.py` controls the overall logic of the program. The extension is also invoked in the main.py program.
+
+### Files needed for Running main.py
+
 1. query file
 2. table files
 3. `Predicate.py`
 4. `Variable.py`
+5. `GibbsSampling.py`
+6. `Lift.py`
 
-### Notes
-There are two variable classes: `randomVar` and `Variable`.
-`randomVar` is for Gibbs sampling. @Liqi: you may change this part to suit for the gibbs sampling.
-`Variable` is used in liftable inference algorithm. Please do not change it.
+## Dependencies
+
+1.
 
 
-## Sample command for running main.py
-`Python main.py --table t2.txt --query query.txt --table t1.txt --table t3.txt`
 
-## Generate test random data for testing
 
-file: `DataGenerator.py`
+## Sample Command for running main.py
+`Python main.py --table t2.txt --query query.txt --table t1.txt --table t3.txt --table t4.txt`
+
+## Generating Random Data for testing
+
+File: `DataGenerator.py`
 
 How to specify the number of tuples you want:
 
-change the n value at line 43
+n is not the exact number of tuples in the database. **The number of tuples is about $n^2$ .**
+
+change the n value at line 51 to ajust 
 
 ```python
 if __name__ == "__main__":
     n = 100 #<--------change this n value
     print("Generate data points of size: " + str(n))
-    DataGenerator(n)
+    DataGenerator(n) 
 ```
 
-P, Q and R tables and they are similar to the input given in the examples **P(x), Q(x), R(x, y)**
+P, Q and R tables and they are similar to the input given in the examples **P(x), Q(x), R(x, y) and T(x,y)**
 
-### Tables generated
+#### Tables Generated
 
 ```
 test_table1.txt
 test_table2.txt
 test_table3.txt
+test_table4.txt
 ```
 
+## Extension
+
+The implementation of the gibbs sampling extension is located in the `GibbsSampling.py` file. This file is called in the main.py program. You can change the number of steps,`num_step`, for each sampling process in the main.py program. If `num_step` is large, approximation result is closed to the real value, but it might take longer time compute.

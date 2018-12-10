@@ -195,5 +195,7 @@ if __name__ == "__main__":
     
     if len(HardQueries) != 0:
         print("The query file contians hard queries.")
-        GibbsSampling.run_Gibbs(PD,100) #Optional positional keyword: steps = # of steps
+        num_steps = 1000
+        print("Number of steps for each sample: " + str(num_steps))
+        GibbsSampling.run_Gibbs(PD,num_steps) #Optional positional keyword: steps = # of steps
 

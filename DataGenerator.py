@@ -48,6 +48,6 @@ class DataGenerator:
 
 
 if __name__ == "__main__":
-    n = 500 #<--------change this n value
-    print("Generate data points of size: " + str(n))
-    DataGenerator(n)
+    num_step = 500 #<--------change this n value
+    print("Generate data points of size: " + str(num_step))
+    DataGenerator(num_step)
