@@ -58,15 +58,7 @@ class TableLoader:
             prob = one_row[-1]
             rand_vars_list.append(randomVar(df.name, names, prob))
         return rand_vars_list
-
-#     def createDictDB(self, dfDict):
-#         DB = dict()
-#         for key in dfDict:
-#             rst = self.dataFrameToDictTable(dfDict[key])
-#             tname, table = rst[0], rst[1]
-#             DB[tname] = table
-#         return DB
-    
+   
 class QueryParser:
     """
         Description: parsed the raw string input
@@ -168,13 +160,11 @@ class ProbaDatabase:
                 self.queries.append(queryParser.parseString(q_str))
                 one_line = file.readline()
 
-
-
-
 if __name__ == "__main__":
     PD = ProbaDatabase()
     options = sys.argv[1:]
     idx = 0
+    """ Parsing Input """
     while idx < len(options):
         one_entry = options[idx]
         if options[idx] == "--table":
@@ -186,35 +176,19 @@ if __name__ == "__main__":
         else:
             print("invalid input")
         idx = idx + 1
-
     PD.loadTablesAndQueries()
-    
-    """
-    print("==================Testing ================")
-    # print(PD.tables_path)
-    # print(PD.query_file_path)
-    print(PD.tables_df['P'])
-    # print(PD.tables_df['R'])
-    for one_query in PD.queries:
-        print("one query")
-        for one_conj in one_query:
-            print("one conj")
-            for predicate in one_conj:
-                print(predicate)
-    
-    """
     DB = PD.tables_dicts
-#     print(DB)
-#     Lift = Lift(DB)
     
-    
+
+    lift = Lift(DB)
+    hasHardQueries = False
     for q in PD.queries:
-        lift = Lift(DB)
         start=datetime.now()
         print("Solving Query: ")
         lift.printQuery(q)
         print("p = ", lift.infer(q))
         print("Execution time: ",datetime.now() - start)
     
-#query_inference = GibbsSampling.run_Gibbs(PD,300) #Optional positional keyword: steps = # of steps
+    if hasHardQueries:
+        GibbsSampling.run_Gibbs(PD,100) #Optional positional keyword: steps = # of steps
 

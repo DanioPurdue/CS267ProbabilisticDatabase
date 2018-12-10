@@ -15,7 +15,7 @@ There are two variable classes: `randomVar` and `Variable`.
 
 
 ## Sample command for running main.py
-`Python main.py --table t2.txt --query query.txt --table t1.txt`
+`Python main.py --table t2.txt --query query.txt --table t1.txt --table t3.txt`
 
 ## Generate test random data for testing
 
