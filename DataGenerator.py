@@ -32,6 +32,14 @@ class DataGenerator:
                     if (i + j) % 3 == 0 or (i + j) % 4 == 0:
                         rand_val = np.random.rand(1)
                         file.write(str(i) + "," + str(j) + "," + str(round(rand_val[0], 3))+"\n")
+                    
+        with open("test_table4.txt", "w") as file:
+            file.write("T\n")
+            for j in range(self.n):
+                for i in range(self.n):
+                    if (i + j) % 3 == 1 or (i + j) % 4 == 0:
+                        rand_val = np.random.rand(1)
+                        file.write(str(i) + "," + str(j) + "," + str(round(rand_val[0], 3))+"\n")
         print("Done!")
 
 
@@ -40,6 +48,6 @@ class DataGenerator:
 
 
 if __name__ == "__main__":
-    n = 100 #<--------change this n value
+    n = 500 #<--------change this n value
     print("Generate data points of size: " + str(n))
     DataGenerator(n)

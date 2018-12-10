@@ -6,7 +6,7 @@ from Predicate import Predicate
 
 class Lift:
     def __init__(self, database):
-        self.cache = []
+#         self.cache = []
         self.database = database
 
         
@@ -254,9 +254,21 @@ class Lift:
                     new_key = var_names if len(var_names)>len(key) else key
                     query_union[id_u][1].append(predicate)
                     query_union[id_u][0] = new_key
-        querys = [[union[1]] for union in query_union]
+        keys = []
+        query_union_new = []
+        for id_u, union in enumerate(query_union):
+            if union[0] in keys:
+                idx = keys.index(union[0])
+                for q in union[1]:
+                    print(q.name)
+                    if not q.name in [predicate.name for predicate in query_union_new[idx]]: 
+                        query_union_new[idx].append(q)
+            else:
+                keys.append(union[0])
+                query_union_new.append(union[1])            
+        querys = [[union] for union in query_union_new]
         return querys 
-        
+
     def sep_dq(self,query):
         query_union = []
         predicate1 = query[0]
@@ -304,10 +316,10 @@ class Lift:
         if len(query) > 1:
             return -1
         
-        if self.existInCache(query):
-            return -1
+#         if self.existInCache(query):
+#             return -1
         
-        self.cache.append(query)     
+#         self.cache.append(query)     
         querys = self.sep_cq(query)
         m = len(querys)
         if len(querys) == 1:
@@ -419,32 +431,32 @@ class Lift:
     def infer(self, query):
         p = self.Step0(query)
         if p != -1:
-            print ('step 0: ', p)
+#             print ('step 0: ', p)
             return p
         
         p = self.Step1(query)
         if p != -1:
-            print ('step 1: ', p)
+#             print ('step 1: ', p)
             return p
         
         p = self.Step2(query)
         if p != -1:
-            print ('step 2: ', p)
+#             print ('step 2: ', p)
             return p
         
         p = self.Step3(query)
         if p != -1:
-            print ('step 3: ', p)
+#             print ('step 3: ', p)
             return p
         
         p = self.Step4(query)
         if p != -1:
-            print ('step 4: ', p)
+#             print ('step 4: ', p)
             return p
         
         p = self.Step5(query)
         if p != -1:
-            print ('step 5: ', p)
+#             print ('step 5: ', p)
             return p
         print("Not liftable")
         return -999
