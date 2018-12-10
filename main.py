@@ -192,6 +192,7 @@ if __name__ == "__main__":
         if p == -999:
             HardQueries.append(q)
     
-    if HardQueries:
+    if len(HardQueries) != 0:
+        print("The query file contians hard queries.")
         GibbsSampling.run_Gibbs(PD,100) #Optional positional keyword: steps = # of steps
 

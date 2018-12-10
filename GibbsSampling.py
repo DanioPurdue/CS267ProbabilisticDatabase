@@ -181,7 +181,7 @@ def run_Gibbs(PD, steps = 100):
 		print("Gibbs sampling approximation -- #%d query: " % query_index, prob)
 	print('Done')
 	
-	view_convergence(convergence)
+	# view_convergence(convergence)
 	
 
 	
