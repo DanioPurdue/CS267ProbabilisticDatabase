@@ -13,18 +13,16 @@
 
 ## Dependencies
 
-1. itertools
-2. pandas
-3. numpy
-4. pandas
-5. numpy
-6. random
-7. itertools
-8. pdb
-9. matplotlib
-10. progressbar
+1. pandas
+2. numpy
+3. matplotlib
+4. progressbar
 
+These dependencies are in the `requiremens.txt` file.
 
+To install them, please run
+
+`pip install -r requirements.txt`
 
 
 ## Sample Command for running main.py
