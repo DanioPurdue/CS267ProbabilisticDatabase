@@ -13,7 +13,16 @@
 
 ## Dependencies
 
-1.
+1. itertools
+2. pandas
+3. numpy
+4. pandas
+5. numpy
+6. random
+7. itertools
+8. pdb
+9. matplotlib
+10. progressbar
 
 
 
