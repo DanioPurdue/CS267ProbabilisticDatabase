@@ -189,6 +189,7 @@ if __name__ == "__main__":
         p = lift.infer(q)
         print("p = ", p)
         print("Execution time: ",datetime.now() - start)
+        print("=================================")
         if p == -999:
             HardQueries.append(q)
     

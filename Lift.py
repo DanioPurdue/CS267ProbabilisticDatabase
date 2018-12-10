@@ -16,7 +16,6 @@ class Lift:
             for pred in clause:
                 print(pred)
             print("")
-        print("=====================================")
     
     
     def findInTable(self,tableName,variables):
