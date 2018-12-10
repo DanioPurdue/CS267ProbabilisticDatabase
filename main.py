@@ -181,14 +181,17 @@ if __name__ == "__main__":
     
 
     lift = Lift(DB)
-    hasHardQueries = False
+    HardQueries = []
     for q in PD.queries:
         start=datetime.now()
         print("Solving Query: ")
         lift.printQuery(q)
-        print("p = ", lift.infer(q))
+        p = lift.infer(q)
+        print("p = ", p)
         print("Execution time: ",datetime.now() - start)
+        if p == -999:
+            HardQueries.append(q)
     
-    if hasHardQueries:
+    if HardQueries:
         GibbsSampling.run_Gibbs(PD,100) #Optional positional keyword: steps = # of steps
 
