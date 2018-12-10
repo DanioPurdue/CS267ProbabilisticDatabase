@@ -59,3 +59,13 @@ test_table4.txt
 ## Extension
 
 The implementation of the gibbs sampling extension is located in the `GibbsSampling.py` file. This file is called in the main.py program. You can change the number of steps,`num_step`, for each sampling process in the main.py program. If `num_step` is large, approximation result is closed to the real value, but it might take longer time compute.
+
+## Dependencies
+
+1. pandas
+2. numpy
+3. matplotlib
+4. math
+5. time
+6. processbar
+7. random
