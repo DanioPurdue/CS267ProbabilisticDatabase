@@ -2,7 +2,7 @@
 ## `main.py`
 `main.py` controls the overall logic of the program. The extension is also invoked in the main.py program.
 
-### Files needed for Running main.py
+### Files needed for Running `main.py`
 
 1. query file
 2. table files
@@ -28,13 +28,13 @@ To install them, please run
 ## Sample Command for running main.py
 `Python main.py --table t2.txt --query query.txt --table t1.txt --table t3.txt --table t4.txt`
 
-## Generating Random Data for testing
+## Generating Random Data for Testing
 
 File: `DataGenerator.py`
 
 How to specify the number of tuples you want:
 
-n is not the exact number of tuples in the database. **The number of tuples is about $n^2$ .**
+n is not the exact number of tuples in the database. **The number of tuples is on the order of  $n^2$ .**
 
 change the n value at line 51 to ajust 
 
