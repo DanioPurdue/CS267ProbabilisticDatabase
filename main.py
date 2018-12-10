@@ -156,7 +156,7 @@ class ProbaDatabase:
             one_line = file.readline()
             while one_line:
                 q_str = one_line.strip("\n")
-                print("testing query strings: " + q_str)
+                print("query string: " + q_str)
                 self.queries.append(queryParser.parseString(q_str))
                 one_line = file.readline()
 
