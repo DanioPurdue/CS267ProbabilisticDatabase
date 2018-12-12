@@ -135,6 +135,8 @@ class ProbaDatabase:
         self.tables_df = dict() #tables in dataframe Form
         self.tables_dicts = dict()
         self.queries = []
+        self.hard_query_idxs = []
+        self.raw_query_strs = []
 
     def loadTablesAndQueries(self):
         """
@@ -157,6 +159,7 @@ class ProbaDatabase:
             while one_line:
                 q_str = one_line.strip("\n")
                 print("query string: " + q_str)
+                self.raw_query_strs.append(q_str)
                 self.queries.append(queryParser.parseString(q_str))
                 one_line = file.readline()
 
@@ -181,7 +184,7 @@ if __name__ == "__main__":
     
 
     lift = Lift(DB)
-    HardQueries = []
+    query_idx = 0
     for q in PD.queries:
         start=datetime.now()
         print("Solving Query: ")
@@ -191,10 +194,11 @@ if __name__ == "__main__":
         print("Execution time: ",datetime.now() - start)
         print("=================================\n\n")
         if p == -999:
-            HardQueries.append(q)
+            PD.hard_query_idxs.append(query_idx)
+        query_idx += 1
     
-    if len(HardQueries) != 0:
-        print("The query file contians hard queries.")
+    if len(PD.hard_query_idxs) != 0:
+        print("The query file contains %d hard queries." % len(PD.hard_query_idxs))
         num_steps = 1000
         print("Number of steps for each sample: " + str(num_steps))
         GibbsSampling.run_Gibbs(PD,num_steps) #Optional positional keyword: steps = # of steps
