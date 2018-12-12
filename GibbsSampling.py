@@ -150,7 +150,10 @@ def run_Gibbs(PD, steps = 100):
 	print("Start Gibbs-Sampling approximation")
 	convergence = []
 	query_index = 0
-	for one_query in PD.queries:
+	for hard_index in PD.hard_query_idxs:
+		print("Query: ", PD.raw_query_strs[hard_index])
+		one_query = PD.queries[hard_index]
+	#for one_query in PD.queries:
 		query_index = query_index + 1
 		one_query_ = []
 		table_list_one_query = [] 
