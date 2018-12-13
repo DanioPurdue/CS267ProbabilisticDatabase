@@ -199,7 +199,7 @@ if __name__ == "__main__":
     
     if len(PD.hard_query_idxs) != 0:
         print("The query file contains %d hard queries." % len(PD.hard_query_idxs))
-        num_steps = 1000
+        num_steps = 500
         print("Number of steps for each sample: " + str(num_steps))
         GibbsSampling.run_Gibbs(PD,num_steps) #Optional positional keyword: steps = # of steps
 
