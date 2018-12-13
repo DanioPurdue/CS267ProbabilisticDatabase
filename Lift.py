@@ -334,6 +334,18 @@ class Lift:
                 rst += (-1)**(len(comb)+1) * self.infer(q)
         return rst
     
+    def getTables(self, q):
+        rs = []
+        for clause in q:
+            for pred in clause:
+                rs.append(pred.name)
+        return set(rs)
+    
+    def isTableIndependent(self, q1, q2):
+        rs_1 = self.getTables(q1)
+        rs_2 = self.getTables(q2)
+        return len(rs_1 & rs_2) == 0
+    
     def Step4(self, query):
         """
         Step 4 of the Lifted Inference Algorithm
@@ -355,7 +367,7 @@ class Lift:
         for i in range(1,m):
             q1 = query[:i]
             q2 = query[i:]
-            if self.isIndependent(q1,q2):
+            if self.isTableIndependent(q1,q2):
                 rst = 1 - (1-self.infer(q1)) * (1-self.infer(q2))
                 return rst
         return -1
