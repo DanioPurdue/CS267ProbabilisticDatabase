@@ -1,4 +1,4 @@
-#Probabilistic Database Project
+# Probabilistic Database Project
 ## `main.py`
 `main.py` controls the overall logic of the program. The extension is also invoked in the main.py program.
 
